@@ -7,7 +7,7 @@ title: 0==||=======>
 email: sa615291@mail.ustc.edu.cn
 description: > # this means to ignore newlines until "baseurl:"
   A simple and awesome blog theme powered by jekyll.
-url: http://ch710798472.github.io/blog # the base hostname & protocol for your site
+url: http://ch710798472.github.io # the base hostname & protocol for your site
 
 #
 ###################################
