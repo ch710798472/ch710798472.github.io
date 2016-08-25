@@ -40,22 +40,21 @@ sudo apt-get install git
 #####3.1 项目准备
 　　项目源码地址看[这里](https://github.com/ch710798472/GithubRecommended)，readme我已经写了怎么上手这个项目以及开发环境的搭建，但是由于篇幅太短，在这里我还是在表述下安装过程。
 　　git clone我的项目之后，你需要安装一下这些安装包：
-```
-sudo apt-get install pip
-sudo pip install numpy
-sudo pip install scipy
-sudo apt-get install python-networkx
-sudo pip install pygithub
-sudo pip install pandas
-sudo pip install d3py
-```
+```sudo apt-get install pip```  
+```sudo pip install numpy```  
+```sudo pip install scipy```  
+```sudo apt-get install python-networkx```  
+```sudo pip install pygithub```  
+```sudo pip install pandas```  
+```sudo pip install d3py```
 　　可能有的安装命令失效了，那么pip的你可以用apt-get试试比如pip install numpy没有用你可以apt-get install python-numpy代替。安装完毕，可能很多的同学都说怎么写代码，改代码，这里推荐pycharm这个开发工具，还是比较好用的网上有很多的下载链接，只需要找一个注册码就可以永久使用付费版了。
 #####3.2 源码剖析
 　　我们来看一下项目的目录结构：![](http://i.imgur.com/j5zg5qx.png)发现和django的结构差不多.idea先忽略，RecGithub里面存放的就是后台的代码，RecGithub/templates里面是页面模板，Web里面是django项目的一些配置，static里面是一些前端的JS等一些静态数据。
 #####3.2.1 /Web目录
 　　/urls.py文件中，我们可以看到整个项目的URL设置，比如form是搜索时候用的，admin是后台入口，其他的都是什么功能可以去试试就知道了，这很简单。
-```
-urlpatterns = [
+
+
+	urlpatterns = [
     url(r'^$',views.index,name='home'),
     url(r'^form/$',views.form,name='form'),
     url(r'^repo/$',views.repo,name='repo'),
@@ -65,9 +64,9 @@ urlpatterns = [
     url(r'^nonconnect/$', views.nonconnect,name='nonconnect'),
     url(r'^admin/', admin.site.urls),
     url(r'^home/$',views.index,name='home'),
+	]
 
-]
-```
+
 　　settings.py中要注意的是静态文件的设置，我们可以看到对不同的系统中的文件的路径的一个特殊处理。其中debug的设置，在开发的时候设置为true可以更好的帮助我们来调试代码。
 ```
 STATIC_URL = '/static/'
@@ -77,11 +76,11 @@ STATICFILES_DIRS = (
 ```
 #####3.2.2 /RecGithub目录
 　　views.py文件定义了文件的视图控制结构包括页面的跳转控制等。
-```
-def index(request): #这里定义了首页的内容
+
+	def index(request): #这里定义了首页的内容
     return render(request, 'index.html')
 
-def form(request): #这里是搜索查找的时候所用到的表格与models.py中定义的表单相对应
+	def form(request): #这里是搜索查找的时候所用到的表格与models.py中定义的表单相对应
     if request.method == 'POST':   # 当提交表单时
 
         form = SearchForm(request.POST)  # form 包含提交的数据
@@ -100,7 +99,7 @@ def form(request): #这里是搜索查找的时候所用到的表格与models.py
         form = SearchForm()
     return render(request, 'search.html', {'form': form})
 
-def repo(request): #这是定义了搜索仓库的业务逻辑
+	def repo(request): #这是定义了搜索仓库的业务逻辑
     if request.method == 'POST':  # 当提交表单时
 
         form = SearchRepoForm(request.POST) # form 包含提交的数据
@@ -119,7 +118,7 @@ def repo(request): #这是定义了搜索仓库的业务逻辑
         form = SearchRepoForm()
     return render(request, 'repo.html', {'form': form})
 
-def connect(request): #这里定义了图谱关系的业务逻辑
+	def connect(request): #这里定义了图谱关系的业务逻辑
     if request.method == 'POST':  # 当提交表单时
 
         form = ConnectForm(request.POST)   # form 包含提交的数据
@@ -138,7 +137,7 @@ def connect(request): #这里定义了图谱关系的业务逻辑
         form = ConnectForm()
     return render(request, 'connect.html', {'form': form})
 
-def search(request): #搜索逻辑处理
+	def search(request): #搜索逻辑处理
     searchKey = request.GET['searchKey']
     Dict = {'filename': searchKey.strip()}
     if searchKey.strip()=='':
@@ -149,7 +148,7 @@ def search(request): #搜索逻辑处理
         else:
             return HttpResponse(str('请重新查找！'))
 
-def nonconnect(request): #非实时搜索处理逻辑
+	def nonconnect(request): #非实时搜索处理逻辑
     if request.method == 'POST':  # 当提交表单时
 
         form = ConnectForm(request.POST)  # form 包含提交的数据
@@ -167,39 +166,25 @@ def nonconnect(request): #非实时搜索处理逻辑
     else:  # 当正常访问时
         form = ConnectForm()
     return render(request, 'connect.html', {'form': form})
-```
+
 　　models.py中可以看到我们定义的自定义的django表单的类型：
-```
+
 #my search form
-class SearchForm(forms.Form):
+	class SearchForm(forms.Form):
         location = forms.CharField(max_length=20 ,label='所在地区')
         # mail = forms.EmailField(label='电子邮件')
         # topic = forms.ChoiceField(choices=TOPIC_CHOICES,label='选择评分')
         language = forms.CharField(max_length=100 ,label='编程语言')
         def __unicode__(self):
             return self.name
-```
+
 
 　　/templates目录下是页面的html文件，采用的是django模板来设计的页面，把页面分成头、内容、尾三个部分。比如在base.html文件中，定义了模板：
-```
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=0.618">
-    <title>{% black title %}Github Analytics{% endblack %}</title>
-</head>
-<body>
-</body>
-</html>
-```
 　　然后在connect.html中继承模板就可以了：
-```
-{% extends 'base.html' %}
-```
 　　这样的页面可维护性大大提高，而且有利于流畅性的提升以及代码的阅读。
   chgithub.py文件是整个项目的核心，里面有github人物关系图谱的数据获取，关系的建立，以及各个排名的算法。
-```
-def readcfg():
+
+	def readcfg():
     '''
     read config.cfg file to config github
     :return:github username,password
@@ -211,7 +196,7 @@ def readcfg():
     passwd=config.get('info','passwd')
     return user,passwd
 
-def GetSearchInfo(location,language):
+	def GetSearchInfo(location,language):
     '''
     search infomation
     :param location:
@@ -281,7 +266,7 @@ def GetSearchInfo(location,language):
         else:
             return 0
 
-def SearchRepo(stars,language):
+	def SearchRepo(stars,language):
     filename = "./static/bootstrap/data/" +language +stars + ".json"
     if os.path.exists(filename):
         return 1
@@ -309,7 +294,7 @@ def SearchRepo(stars,language):
             print 'chgithub.GetSearchInfo->DONE'
             return 0
 
-def SocialConnect(USER,REPO):
+	def SocialConnect(USER,REPO):
 
     filename = "./static/bootstrap/data/" +USER +REPO+ ".json"
     if os.path.exists(filename):
@@ -345,7 +330,7 @@ def SocialConnect(USER,REPO):
         print 'chgithub.SocialConnect->DONE'
         return 1
 
-def SearchConnect(searchKey):
+	def SearchConnect(searchKey):
 
     filename = "./static/bootstrap/data/" +searchKey + ".json"
     if os.path.exists(filename):
@@ -420,15 +405,15 @@ def nonSocialConnect(USER,REPO):
         json.dump(d, open(filename, 'w'))
         print 'chgithub.SocialConnect->DONE'
         return 1
-```
+
 #####3.2.3/RecGithub/function
 　　为什么单独把这个里面的代码拿出来讲呢，是因为这里面有很多的数据分析的算法，比如knn算法，svd，apriori算法等。所使用的数据集在static/bootstrap/data中，我们采用的数据是open edx这个在线的学习系统的公开数据集，我们需要分析用户的类别以及挖掘高分项目是否跟某些特性有关，还有就是推荐课程。下面是具体的要求：K-近邻算法对学生进行了分类，归一化处理了每个特征向量的数值，主要是从nevents, ndays_act, nplay_video, nchapters, nforum_posts 这几个字段来分类出学习者的 viewed,explored,certified和grade。
 　　实现Apriori算法，挖掘课程高分者之间的共同特征，比如论坛活跃的学习者、学习次数多的学习者以及学历等之间与课程获得高分之间的关联等。
 　　load_csv.py中是导入数据的代码，以及对数据进行清洗转化的过程，没什么好讲的。
 　　基于物品的协同过滤算法的实现，来推荐课程。
 　　knn.py是实现了knn算法：
-```
-def knn(base, dataSet, labels, k):
+
+	def knn(base, dataSet, labels, k):
     '''
     :param base: 基础数据矩阵用来对其他数据进行分类距离的计算
     :param dataSet: 需要分类的数据集合
@@ -449,7 +434,7 @@ def knn(base, dataSet, labels, k):
     sortedClassCount = sorted(classCount.iteritems(), key=operator.itemgetter(1), reverse=True)
     return sortedClassCount[0][0]
 
-def createMatrix(filename):
+	def createMatrix(filename):
     '''
     :param filename: 需要处理成矩阵的数据文件
     :return returnMat,classLabelVector:数据矩阵，数据标签矩阵
@@ -469,7 +454,7 @@ def createMatrix(filename):
     print "record count = %d \n" % index
     return returnMat,classLabelVector
     
-def Normalized(dataSet):
+	def Normalized(dataSet):
     '''
     :param dataSet: 数据矩阵
     :return normDataSet, ranges, minVals：归一化后的矩阵，取值范围，最小值
@@ -483,7 +468,7 @@ def Normalized(dataSet):
     normDataSet = normDataSet/tile(ranges, (m,1))   #归一化后数值 =（真实数据-最小值）/（最大值-最小值）
     return normDataSet, ranges, minVals
    
-def data_test(filename):
+	def data_test(filename):
     '''
     :param filename: 需要进行分类的文件
     :return: 输出分类结果，以及错误率等
@@ -501,14 +486,14 @@ def data_test(filename):
     print "error rate : %f \n" % (errorCount/float(testNum))
     print "error count：%d \n" %errorCount
 
-def start_test():
+	def start_test():
     '''
     导入数据文件，测试knn算法开始函数
     '''
     # lc.load_csv_data()
     data_test('edx_knn.csv')
 
-def displayData(filename):
+	def displayData(filename):
     how = 0.10      # 测数数据占数据的百分比
     dataMat,dataLabels = createMatrix(filename)
     normMat, ranges, minData = Normalized(dataMat)
@@ -526,7 +511,7 @@ def displayData(filename):
 ```
 　　fptree.py是apriori算法的一种优化实现方式，用来挖掘频繁项集，对于大量数据的处理效率提升非常明显。
 ```
-class treeNode:
+	class treeNode:
     def __init__(self, value, num, parentNode):
         self.name = value
         self.count = num
@@ -542,7 +527,7 @@ class treeNode:
         for child in self.children.values():
             child.disp(ind+1)
 
-def load_data(filename):
+	def load_data(filename):
     '''
     输出[viewed,explored,certified,gender,grade,nevents,ndays_act,nplay_video,nchapters,nforum_posts,incomplete_flag]
     对应[1     ,2       ,3        ,4     ,5    ,6      ,7        ,8          ,9        ,10          ,11    ]序列数据集
@@ -563,7 +548,7 @@ def load_data(filename):
         result.append(temp)
     return result
 
-def start_test():
+	def start_test():
     '''
     测试开始函数
     :return: 频繁项集
@@ -575,7 +560,7 @@ def start_test():
     frequentTree(fptree,headertab,50,set([]),frequentSet)
     print frequentSet
 
-def createInitSet(dataSet):
+	def createInitSet(dataSet):
     '''
     :param dataSet: 要挖掘频繁项集的数据集
     :return: 字典数据集
@@ -585,7 +570,7 @@ def createInitSet(dataSet):
         retDict[frozenset(trans)] = 1
     return retDict
 
-def createTree(dataSet, support=1):
+	def createTree(dataSet, support=1):
     '''
     create FP-tree from dataset
     :param dataSet: 输入数据字典
@@ -614,7 +599,7 @@ def createTree(dataSet, support=1):
             updateFpTree(orderedItems, retTree, headertab, count)
     return retTree, headertab
 
-def updateFpTree(items, fptree, headertab, count):
+	def updateFpTree(items, fptree, headertab, count):
     '''
     :param items: 更新项集
     :param fptree: fp树
@@ -633,7 +618,7 @@ def updateFpTree(items, fptree, headertab, count):
     if len(items) > 1:
         updateFpTree(items[1::], fptree.children[items[0]], headertab, count)
         
-def updateFpHeader(node, targetNode):
+	def updateFpHeader(node, targetNode):
     '''
     更新头指针表
     :param node:
@@ -644,7 +629,7 @@ def updateFpHeader(node, targetNode):
         node = node.nodeLink
     node.nodeLink = targetNode
         
-def ascendTree(leafNode, prefixPath):
+	def ascendTree(leafNode, prefixPath):
     '''
     迭代上溯整个fp树
     :param leafNode:
@@ -655,7 +640,7 @@ def ascendTree(leafNode, prefixPath):
         prefixPath.append(leafNode.name)
         ascendTree(leafNode.parent, prefixPath)
     
-def findPrefixPath(basePat, treeNode):
+	def findPrefixPath(basePat, treeNode):
     '''
     生成条件模式基，遍历整个头指针链表
     :param basePat:
@@ -671,7 +656,7 @@ def findPrefixPath(basePat, treeNode):
         treeNode = treeNode.nodeLink
     return condPats
 
-def frequentTree(fptree, headertab, support, preFix, frequentSet):
+	def frequentTree(fptree, headertab, support, preFix, frequentSet):
     '''
     递归查找频繁项集
     :param fptree:
@@ -695,10 +680,10 @@ def frequentTree(fptree, headertab, support, preFix, frequentSet):
         if myHead != None:
             # print 'conditional tree for: ',newFreqSet
             frequentTree(myCondTree, myHead, support, newFreqSet, frequentSet)
-```
+
 　　svd.py的代码实现了推荐算法，而且对于物品属性较多的情况作了奇异值分解，提升了算法的时间效率。
-```
-def create_matrix(filename,numbers):
+
+	def create_matrix(filename,numbers):
     '''
     :param filename: 需要处理成矩阵的数据文件
     :return returnMat:数据矩阵
@@ -716,7 +701,7 @@ def create_matrix(filename,numbers):
     print "record count = %d \n" % index
     return mat(returnMat)
 
-def create_testData():
+	def create_testData():
     dataMat = mat(
            [[0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 5],
            [0, 0, 0, 3, 0, 4, 0, 0, 0, 0, 3],
@@ -733,7 +718,7 @@ def create_testData():
 
 #三种距离计算方式，采用基于物品的相似度计算（还有基于内容和基于用户的推荐），
 #之所以采用 列向量是因为通常用户的数目大于物品的数目，计算会少很多
-def ecludSim(x,y):
+	def ecludSim(x,y):
     '''
     欧氏距离计算
     :param x:列向量
@@ -742,7 +727,7 @@ def ecludSim(x,y):
     '''
     return 1.0/(1.0 + la.norm(x - y))
 
-def pearsSim(x,y):
+	def pearsSim(x,y):
     '''
     皮尔逊相关系数计算，并且把值从-1~1归一化到0~1
     :param x:列向量
@@ -752,7 +737,7 @@ def pearsSim(x,y):
     if len(x) < 3 : return 1.0
     return 0.5+0.5*corrcoef(x, y, rowvar = 0)[0][1]
 
-def cosSim(x,y):
+	def cosSim(x,y):
     '''
     余弦相似度计算,并且将值从-1~1归一化到0~1
     :param x:列向量
@@ -763,7 +748,7 @@ def cosSim(x,y):
     d = la.norm(x)*la.norm(y)
     return 0.5+0.5*(num/d)
 
-def est(dataMat, user, meas, course):
+	def est(dataMat, user, meas, course):
     '''
     推荐系统的课程相似性
     :param dataMat: 用户课程矩阵
@@ -787,7 +772,7 @@ def est(dataMat, user, meas, course):
     if simTotal == 0: return 0
     else: return ratSimTotal/simTotal
 
-def svdsigma(dataMat):
+	def svdsigma(dataMat):
     '''
     calculate S*90% to reduce dataMat 找到90%有效值是包含奇异值
     :param dataMat: 数据矩阵
@@ -808,7 +793,7 @@ def svdsigma(dataMat):
         Sn = sumTemp
     return Sn+1
 
-def svd(dataMat, user, meas, course,Sn):
+	def svd(dataMat, user, meas, course,Sn):
     '''
     采用了svd奇异矩阵来简化大量数据的相似度计算
     :param dataMat: 数据矩阵
@@ -832,7 +817,7 @@ def svd(dataMat, user, meas, course,Sn):
     if simTotal == 0: return 0
     else: return ratSimTotal/simTotal
 
-def recommended(dataMat, user, N=3, meas=cosSim, estMethod=est):
+	def recommended(dataMat, user, N=3, meas=cosSim, estMethod=est):
     '''
     推荐算法
     :param dataMat: 数据矩阵
@@ -851,10 +836,10 @@ def recommended(dataMat, user, N=3, meas=cosSim, estMethod=est):
         courseScores.append((course, svdScore))
     return sorted(courseScores, key=lambda bb: bb[1], reverse=True)[:N]
 
-def start_test():
+	def start_test():
     # dataMat = create_matrix("edx_course.csv")
     dataMat = create_testData()
     return recommended(dataMat, 1, meas=pearsSim , estMethod=svd)
-```
+
 ####4. 感悟
 　　整个项目做下来的感觉就是，从没有方向到自己找到方向在这里要感谢孟宁老师的指导，没有他这个项目真的做不下来。虽然我写了很多的代码注释，而且也介绍了很多，但是还有很多的遗漏，我会慢慢的改善，逐步的添加上去，所以未待完续。。。
